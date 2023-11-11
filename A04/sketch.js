@@ -28,7 +28,7 @@ class Vec3 {
   //Produto escalar:
   dot (v) {
     console.log()
-    return (this.x*v.x + this.y+v.y + this.z*v.z)
+    return (this.x*v.x + this.y*v.y + this.z*v.z)
   }
   
   //Produto vetorial:
@@ -132,8 +132,8 @@ class Vec3 {
 
 //Definição dos vetores - para vetores 2D, bastar colocar (x, y) ou (x, y, 0) no construtor:
 
-let a = new Vec3(); //Inserir vetor aqui
-let b = new Vec3(); //inserir vetor aqui
+let a = new Vec3(1, 1); //Inserir vetor aqui
+let b = new Vec3(-1, -1); //inserir vetor aqui
 
 //PARTE 1:
 console.log("---------- PARTE 1 ----------")
