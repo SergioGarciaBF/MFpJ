@@ -45,11 +45,18 @@ class Vec3 {
   }
   
   //Produto vetorial:
+  /*
   function pv (v, u) {
     let nx = v.y*u.z - v.z*u.y //Cálculo das coordenadas do produto vetorial 
     let ny = v.z*u.x - v.x*u.z
     let nz = v.x*u.y - v.y*u.x
-    return new Vec3(nx, ny, nz);
+    return new Vec3(nx, ny, nz).z;
+  }*/
+  
+  function pv (u, v) {
+    let vv = createVector(v.x,v.y)
+    let uu = createVector(u.x,v.x)
+    return p5.Vector.cross(vv, uu).z
   }
   
   //Normalizar um vetor:
@@ -68,7 +75,7 @@ class Vec3 {
     constructor (posX, posY, velX, velY) {
       this.position = new Vec3 (posX, posY) //Posição: iniciamente estará no centro do canvas
       this.velocity = new Vec3 (velX, velY) //Velocidade da partícula
-      color(random(256), random(256), random(256))
+      this.velocity = div(this.velocity, length(this.velocity)) //Velocidade normalizada
     }
     
     movimentar() {
@@ -76,20 +83,12 @@ class Vec3 {
     }
     
     mudarVel (p) {
-      this.velocidade = add (this.velocidade, mult(this.velocidade, p))
+      this.velocity = add (this.velocity, mult(this.velocity, p))
     }
     
     mostrar () {
       fill(0)
       ellipse(this.position.x, this.position.y, 10, 10)
-    }
-    
-    ricochetear () {
-      let alpha = 1
-      let beta = 1
-      let vn = dot(n,v)
-      let vp = v-vn
-      v = sub(mult(vp,alpha), mult(vp, beta))
     }
   }
   
@@ -117,29 +116,23 @@ class Vec3 {
       let AC = sub(C,A);
       let AD = sub(D,A);
     
-      let AB_x_AC = AB.cross(AC);
-      let AB_x_AD = AB.cross(AD);
+      let AB_x_AC = pv(AB, AC);
+      let AB_x_AD = pv(AB, AD);
     
       let CD = sub(D,C);
       let CA = sub(A,C);
       let CB = sub(B,C);
     
-      let CD_x_CA = CD.cross(CA);
-      let CD_x_CB = CD.cross(CB);
+      let CD_x_CA = pv(CD, CA);
+      let CD_x_CB = pv(CD, CB);
     
       //Verifica se não houve colisão
-      if ((AB_x_AC.z * AB_x_AD.z) > 0) {
+      if ((AB_x_AC.z * AB_x_AD.z > 0) || (CD_x_CA.z * CD_x_CB.z > 0)) {
         return false;
-        
-  
-      }else if ((CD_x_CA.z * CD_x_CB.z) > 0) {
-        return false;
-      //Em caso de colisão, é necessa'rio verificar se as retas são colineares
-      } else if(length(pv(AB, CD))==0) { //Magnitude do produto vetorial
+      //Em caso de colisão, é necessário verificar se as retas são colineares
+      } else if(length(pv(AB, CD)) == 0) { //Magnitude do produto vetorial
         return false
-    
       }
-  
       return true
     }
     
@@ -156,6 +149,19 @@ class Vec3 {
     }
     
     
+  }
+  
+  function setValidPosiition(v){
+  
+  
+    v.x = min(v.x,width/2)
+    v.y = min(v.y,height/2)
+  
+  
+    v.x = max(v.x,-width/2)
+    v.y = max(v.y,-height/2)
+  
+    return v
   }
   
   function goCartesian()
@@ -185,9 +191,9 @@ class Vec3 {
     listaBarreiras.push(new Barreira(-width/2,-height/2,width/2,-height/2)) //Baixo
     
     //Partículas de teste
-    listaParticulas.push(new Particula (0,0,5,5))
-    listaParticulas.push(new Particula (0,0,2,2))
-    listaParticulas.push(new Particula (0,0,1,1))
+    listaParticulas.push(new Particula (-299,-299,5,5))
+    //listaParticulas.push(new Particula (0,0,2,2))
+    //listaParticulas.push(new Particula (0,0,1,1))
     
   }
   
@@ -195,6 +201,44 @@ class Vec3 {
     background(220);
     
     goCartesian();
+    
+    listaParticulas.forEach(particula => {
+      let v2,n,vp;
+      let colisao=false
+  
+      
+      v2 =add(particula.position,mult(particula.velocity,1.0))
+      
+      listaBarreiras.forEach(barreira =>{
+          if(barreira.cruzamento(new Barreira(particula.position,v2))){
+            colisao=true
+            console.log(colisao)
+            n = barreira.normal()
+          }
+        }
+      )
+    
+      if (colisao){
+  
+        let alpha=1.0
+        let beta=1.0
+        vn = mult(n,dot(n,particula.velocity))
+        vp = sub(particula.velocity,vn)
+        
+        let l = length(particula.velocity)
+  
+        particula.velocity = sub(mult(vp,alpha),mult(vn,beta))
+  
+        particula.velocity = div(particula.velocity,length(particula.velocity))
+        particula.velocity = mult(particula.velocity,l)
+  
+      }else{
+        particula.position = v2
+      }
+      
+      particula.position =setValidPosiition(particula.position)
+      
+    });
     
     // Atualizar e exibir a partícula
     for (let particula of listaParticulas) {
