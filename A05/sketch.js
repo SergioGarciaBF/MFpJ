@@ -45,19 +45,17 @@ class Vec3 {
   }
   
   //Produto vetorial:
-  /*
+  
   function pv (v, u) {
     let nx = v.y*u.z - v.z*u.y //Cálculo das coordenadas do produto vetorial 
     let ny = v.z*u.x - v.x*u.z
     let nz = v.x*u.y - v.y*u.x
-    return new Vec3(nx, ny, nz).z;
-  }*/
-  
-  function pv (u, v) {
-    let vv = createVector(v.x,v.y)
-    let uu = createVector(u.x,v.x)
-    return p5.Vector.cross(vv, uu).z
+    return new Vec3(nx, ny, nz);
   }
+  /*
+  function cross(v, u){
+    return pv(v, u).z;
+  }*/
   
   //Normalizar um vetor:
   function normalize (v) {
@@ -82,10 +80,6 @@ class Vec3 {
       this.position = add(this.position, this.velocity)
     }
     
-    mudarVel (p) {
-      this.velocity = add (this.velocity, mult(this.velocity, p))
-    }
-    
     mostrar () {
       fill(0)
       ellipse(this.position.x, this.position.y, 10, 10)
@@ -96,8 +90,13 @@ class Vec3 {
   class Barreira {
     
     constructor (xInicial, yInicial, xFinal, yFinal){
-      this.inicio = new Vec3 (xInicial, yInicial)
-      this.fim = new Vec3 (xFinal, yFinal)
+      if(arguments.length == 2){
+        this.inicio = xInicial
+        this.fim = yInicial
+      } else {
+        this.inicio = new Vec3 (xInicial, yInicial)
+        this.fim = new Vec3 (xFinal, yFinal)
+      }
     }
     
     mostrarBarreira () {
@@ -191,7 +190,7 @@ class Vec3 {
     listaBarreiras.push(new Barreira(-width/2,-height/2,width/2,-height/2)) //Baixo
     
     //Partículas de teste
-    listaParticulas.push(new Particula (-299,-299,5,5))
+    listaParticulas.push(new Particula (-150,-100,5,5))
     //listaParticulas.push(new Particula (0,0,2,2))
     //listaParticulas.push(new Particula (0,0,1,1))
     
@@ -204,15 +203,14 @@ class Vec3 {
     
     listaParticulas.forEach(particula => {
       let v2,n,vp;
-      let colisao=false
+      let colisao = false;
   
       
-      v2 =add(particula.position,mult(particula.velocity,1.0))
+      v2 = add(particula.position,mult(particula.velocity,1))
       
       listaBarreiras.forEach(barreira =>{
           if(barreira.cruzamento(new Barreira(particula.position,v2))){
             colisao=true
-            console.log(colisao)
             n = barreira.normal()
           }
         }
@@ -220,8 +218,8 @@ class Vec3 {
     
       if (colisao){
   
-        let alpha=1.0
-        let beta=1.0
+        let alpha = 1.0
+        let beta = 1.0
         vn = mult(n,dot(n,particula.velocity))
         vp = sub(particula.velocity,vn)
         
@@ -229,7 +227,7 @@ class Vec3 {
   
         particula.velocity = sub(mult(vp,alpha),mult(vn,beta))
   
-        particula.velocity = div(particula.velocity,length(particula.velocity))
+        particula.velocity = normalize(particula.velocity)
         particula.velocity = mult(particula.velocity,l)
   
       }else{
@@ -243,7 +241,6 @@ class Vec3 {
     // Atualizar e exibir a partícula
     for (let particula of listaParticulas) {
         particula.mostrar();
-        particula.movimentar();
     }
     
     for (let barreira of listaBarreiras ) {
