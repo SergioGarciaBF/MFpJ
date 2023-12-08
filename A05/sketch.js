@@ -73,7 +73,8 @@ class Vec3 {
     constructor (posX, posY, velX, velY) {
       this.position = new Vec3 (posX, posY) //Posição: iniciamente estará no centro do canvas
       this.velocity = new Vec3 (velX, velY) //Velocidade da partícula
-      this.velocity = div(this.velocity, length(this.velocity)) //Velocidade normalizada
+      this.color = color(random(256), random(256), random(256)) //Cor apenas para diferenciar as partículas
+      //this.velocity = div(this.velocity, length(this.velocity)) //Velocidade normalizada
     }
     
     movimentar() {
@@ -81,7 +82,8 @@ class Vec3 {
     }
     
     mostrar () {
-      fill(0)
+      fill(this.color)
+      noStroke()
       ellipse(this.position.x, this.position.y, 10, 10)
     }
   }
@@ -174,6 +176,29 @@ class Vec3 {
   }
   
   //===============================================================================================
+  //=============================== interatividade
+  //===============================================================================================
+  
+  function mousePressed() {
+    goCartesian()
+    let vel = random(10)
+    listaParticulas.push(new Particula (random(-width/2, width/2),random(-height/2, height/2),vel,vel))
+    
+    //Para gerar partículas com VelX e VelY diferentes.
+    //listaParticulas.push(new Particula (random(-width/2, width/2),random(-height/2, height/2),random(10),random(10)))
+  }
+  
+  function keyPressed() {
+    if (keyCode == 66){
+      let aX = random(-width/2, width/2)
+      let aY = random(-height/2, height/2)
+      let bX = random(-width/2, width/2)
+      let bY = random(-height/2, height/2)
+      listaBarreiras.push(new Barreira(aX, aY, bX, bY)) //Desenha uma linha aleatória
+    }
+  }
+  
+  //===============================================================================================
   //=============================== Principal =====================================================
   //===============================================================================================
   
@@ -190,9 +215,8 @@ class Vec3 {
     listaBarreiras.push(new Barreira(-width/2,-height/2,width/2,-height/2)) //Baixo
     
     //Partículas de teste
-    listaParticulas.push(new Particula (-150,-100,5,5))
-    //listaParticulas.push(new Particula (0,0,2,2))
-    //listaParticulas.push(new Particula (0,0,1,1))
+    listaParticulas.push(new Particula (0,0,5,5))
+  
     
   }
   
