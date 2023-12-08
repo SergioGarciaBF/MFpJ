@@ -65,8 +65,8 @@ class Vec3 {
   //Definição de uma partícula:
   class Particula {
     
-    constructor (velX, velY) {
-      this.position = new Vec3 (width/2, height/2) //Posição: iniciamente estará no centro do canvas
+    constructor (posX, posY, velX, velY) {
+      this.position = new Vec3 (posX, posY) //Posição: iniciamente estará no centro do canvas
       this.velocity = new Vec3 (velX, velY) //Velocidade da partícula
       color(random(256), random(256), random(256))
     }
@@ -97,7 +97,7 @@ class Vec3 {
   class Barreira {
     
     constructor (xInicial, yInicial, xFinal, yFinal){
-      this.inicio = new Vec3 (xInicial, yFinal)
+      this.inicio = new Vec3 (xInicial, yInicial)
       this.fim = new Vec3 (xFinal, yFinal)
     }
     
@@ -158,6 +158,15 @@ class Vec3 {
     
   }
   
+  function goCartesian()
+  {
+  
+    mouseXC = mouseX - width/2
+    mouseYC = height/2 - mouseY
+      
+    translate(width/2,height/2)
+    scale(1,-1,1)  
+  }
   
   //===============================================================================================
   //=============================== Principal =====================================================
@@ -168,16 +177,34 @@ class Vec3 {
   
   function setup() {
     createCanvas(600, 600);
-    let cima = barreira()
-    particula = new Particula (5,5)
+    
+    //Linhas base
+    listaBarreiras.push(new Barreira(-width/2, height/2, width/2, height/2)) //Cima
+    listaBarreiras.push(new Barreira(-width/2, height/2, -width/2, -height/2)) //Esqueda
+    listaBarreiras.push(new Barreira(width/2, height/2, width/2, -height/2)) //Direita
+    listaBarreiras.push(new Barreira(-width/2,-height/2,width/2,-height/2)) //Baixo
+    
+    //Partículas de teste
+    listaParticulas.push(new Particula (0,0,5,5))
+    listaParticulas.push(new Particula (0,0,2,2))
+    listaParticulas.push(new Particula (0,0,1,1))
+    
   }
   
   function draw() {
     background(220);
     
+    goCartesian();
+    
     // Atualizar e exibir a partícula
-    particula.mostrar();
-    particula.movimentar();
+    for (let particula of listaParticulas) {
+        particula.mostrar();
+        particula.movimentar();
+    }
+    
+    for (let barreira of listaBarreiras ) {
+      barreira.mostrarBarreira()
+    }
   }
   
   
