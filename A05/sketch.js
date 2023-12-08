@@ -214,7 +214,7 @@ class Vec3 {
     listaBarreiras.push(new Barreira(width/2, height/2, width/2, -height/2)) //Direita
     listaBarreiras.push(new Barreira(-width/2,-height/2,width/2,-height/2)) //Baixo
     
-    //Partículas de teste
+    //Partícula de teste
     listaParticulas.push(new Particula (0,0,5,5))
   
     
@@ -226,14 +226,14 @@ class Vec3 {
     goCartesian();
     
     listaParticulas.forEach(particula => {
-      let v2,n,vp;
+      let p2,n,vp;
       let colisao = false;
   
       
-      v2 = add(particula.position,mult(particula.velocity,1))
+      p2 = add(particula.position,mult(particula.velocity,1))
       
       listaBarreiras.forEach(barreira =>{
-          if(barreira.cruzamento(new Barreira(particula.position,v2))){
+          if(barreira.cruzamento(new Barreira(particula.position,p2))){
             colisao=true
             n = barreira.normal()
           }
@@ -255,7 +255,7 @@ class Vec3 {
         particula.velocity = mult(particula.velocity,l)
   
       }else{
-        particula.position = v2
+        particula.position = p2
       }
       
       particula.position =setValidPosiition(particula.position)
